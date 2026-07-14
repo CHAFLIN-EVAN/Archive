@@ -29,7 +29,7 @@ function DrawerTray({
 }) {
   return (
     <motion.div
-      className="mb-16"
+      className="bp-drawer-tray mb-16"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5, ease: [0.2, 0.8, 0.4, 1] }}
@@ -44,6 +44,7 @@ function DrawerTray({
       >
         {/* Main label */}
         <div
+          className="bp-drawer-label-main"
           style={{
             background: 'linear-gradient(180deg, #0a2035 0%, #061526 100%)',
             border: '1px solid rgba(100,180,255,0.22)',
@@ -58,6 +59,7 @@ function DrawerTray({
         >
           <div>
             <div
+              className="bp-drawer-title"
               style={{
                 fontFamily: 'Space Grotesk, sans-serif',
                 fontSize: '1.25rem',
@@ -68,6 +70,7 @@ function DrawerTray({
               {title}
             </div>
             <div
+              className="bp-drawer-subtitle"
               style={{
                 fontFamily: 'Space Mono, monospace',
                 fontSize: '11px',
@@ -83,6 +86,7 @@ function DrawerTray({
 
         {/* Record count badge */}
         <div
+          className="bp-drawer-count-badge"
           style={{
             background: 'linear-gradient(180deg, #061420 0%, #040f18 100%)',
             border: '1px solid rgba(100,180,255,0.22)',
@@ -97,6 +101,7 @@ function DrawerTray({
           }}
         >
           <div
+            className="bp-count-number"
             style={{
               fontFamily: 'Space Mono, monospace',
               fontSize: '1.6rem',
@@ -121,6 +126,7 @@ function DrawerTray({
 
         {/* Filler line to right edge */}
         <div
+          className="bp-ruler-fill"
           style={{
             flex: 1,
             borderBottom: '1px solid rgba(100,180,255,0.22)',
@@ -160,6 +166,7 @@ function DrawerTray({
 
       {/* Drawer tray body */}
       <div
+        className="bp-drawer-tray-body"
         style={{
           background: 'linear-gradient(180deg, #030b17 0%, #040d1a 100%)',
           border: '1px solid rgba(100,180,255,0.18)',
@@ -309,9 +316,9 @@ export function HomePage() {
           />
         ))}
 
-        <div className="relative px-8 pt-10 pb-8" style={{ zIndex: 1 }}>
+        <div className="bp-hero-inner relative px-8 pt-10 pb-8" style={{ zIndex: 1 }}>
           {/* Top ruler */}
-          <div style={{ display: 'flex', marginBottom: 24, opacity: 0.25 }}>
+          <div className="bp-ruler" style={{ display: 'flex', marginBottom: 24, opacity: 0.25 }}>
             {[...Array(50)].map((_, i) => (
               <div
                 key={i}
@@ -328,6 +335,7 @@ export function HomePage() {
           <div className="flex items-end justify-between">
             <div>
               <motion.div
+                className="bp-hero-tag"
                 style={{
                   fontFamily: 'Space Mono, monospace',
                   fontSize: '11px',
@@ -343,6 +351,7 @@ export function HomePage() {
                 ◈ PERSONAL HISTORICAL RESEARCH SYSTEM ◈
               </motion.div>
               <motion.h1
+                className="bp-hero-title"
                 style={{
                   fontFamily: 'Space Grotesk, sans-serif',
                   color: 'var(--bp-white)',
@@ -357,6 +366,7 @@ export function HomePage() {
                 历 史 档 案 馆
               </motion.h1>
               <motion.div
+                className="bp-hero-sub"
                 style={{
                   fontFamily: 'Space Mono, monospace',
                   fontSize: '13px',
@@ -427,7 +437,7 @@ export function HomePage() {
           </div>
 
           {/* Bottom ruler */}
-          <div style={{ display: 'flex', marginTop: 24, opacity: 0.15 }}>
+          <div className="bp-ruler" style={{ display: 'flex', marginTop: 24, opacity: 0.15 }}>
             {[...Array(80)].map((_, i) => (
               <div
                 key={i}
@@ -444,7 +454,7 @@ export function HomePage() {
       </motion.div>
 
       {/* Main cabinet body */}
-      <div className="px-8 py-10 max-w-7xl mx-auto">
+      <div className="bp-cabinet-body px-8 py-10 max-w-7xl mx-auto">
 
         {/* Chinese History Drawer */}
         <DrawerTray
@@ -454,13 +464,14 @@ export function HomePage() {
           count={chineseCountries.reduce((sum, c) => sum + c.archiveCount, 0)}
           delay={0.3}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'flex-end' }}>
+          <div className="bp-country-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'flex-end' }}>
             {chineseCountries.map((country, i) => (
               <CountryDrawer key={country.id} country={country} index={i} />
             ))}
             {/* Add button */}
-            <Link to="/manage" style={{ display: 'block', paddingTop: 32 }}>
+            <Link to="/manage" className="bp-new-record-link" style={{ display: 'block', paddingTop: 32 }}>
               <motion.div
+                className="bp-new-record-card"
                 style={{
                   width: 210,
                   height: 120,
@@ -501,12 +512,13 @@ export function HomePage() {
           count={worldCountries.reduce((sum, c) => sum + c.archiveCount, 0)}
           delay={0.45}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'flex-end' }}>
+          <div className="bp-country-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'flex-end' }}>
             {worldCountries.map((country, i) => (
               <CountryDrawer key={country.id} country={country} index={i} />
             ))}
-            <Link to="/manage" style={{ display: 'block', paddingTop: 32 }}>
+            <Link to="/manage" className="bp-new-record-link" style={{ display: 'block', paddingTop: 32 }}>
               <motion.div
+                className="bp-new-record-card"
                 style={{
                   width: 210,
                   height: 120,
@@ -589,12 +601,13 @@ export function HomePage() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+          <div className="bp-pending-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
             {FUTURE_SECTIONS.map((section, i) => {
               const Icon = section.icon;
               return (
                 <motion.div
                   key={section.id}
+                  className="bp-pending-card"
                   style={{
                     width: 210,
                     height: 120,
@@ -643,6 +656,7 @@ export function HomePage() {
 
         {/* Footer */}
         <div
+          className="bp-page-footer"
           style={{
             marginTop: 64,
             paddingTop: 16,

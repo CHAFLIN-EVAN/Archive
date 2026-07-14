@@ -21,7 +21,7 @@ export function CountryDrawer({ country, index }: Props) {
 
   return (
     <motion.div
-      className="relative select-none"
+      className="bp-country-card relative select-none"
       style={{ paddingTop: 32, cursor: isEmpty ? 'default' : 'pointer', width: 210 }}
       onClick={() => !isEmpty && navigate(`/country/${country.code}`)}
       initial={{ opacity: 0, y: 28 }}

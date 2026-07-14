@@ -14,6 +14,22 @@ const SNAP_SPRING = { stiffness: 300, damping: 30, mass: 0.2 };
 const SNAP_THRESHOLD = 56;
 
 export function BlueprintCursor() {
+  // 手机端 / 触屏设备不渲染自定义光标
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    const checkTouch = () => {
+      const isTouch =
+        window.matchMedia('(hover: none)').matches ||
+        window.matchMedia('(pointer: coarse)').matches ||
+        'ontouchstart' in window;
+      setIsTouchDevice(isTouch);
+    };
+    checkTouch();
+    window.addEventListener('resize', checkTouch);
+    return () => window.removeEventListener('resize', checkTouch);
+  }, []);
+
   const rawX = useMotionValue(-300);
   const rawY = useMotionValue(-300);
 
@@ -31,6 +47,9 @@ export function BlueprintCursor() {
   const prevSnapId = useRef<string>('');
 
   useEffect(() => {
+    // 触屏设备跳过鼠标事件绑定
+    if (isTouchDevice) return;
+
     const onMove = (e: MouseEvent) => {
       const x = e.clientX;
       const y = e.clientY;
@@ -94,9 +113,9 @@ export function BlueprintCursor() {
       document.removeEventListener('mouseleave', onLeave);
       document.removeEventListener('mouseenter', onEnter);
     };
-  }, [visible]);
+  }, [visible, isTouchDevice]);
 
-  if (!visible) return null;
+  if (isTouchDevice || !visible) return null;
 
   const isSnapped = snap !== null;
 

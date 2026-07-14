@@ -1,0 +1,244 @@
+/* ============================================================
+   响应式适配 - 手机端 (max-width: 768px)
+   目标：桌面端视觉与布局完全不变，仅针对小屏做排版调整
+   ============================================================ */
+
+/* ────────────────────────────────────────────
+   1. 全局字体 / 根字号
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --font-size: 16px;
+  }
+}
+
+/* ────────────────────────────────────────────
+   2. BlueprintCursor - 仅在有指针设备时显示
+   ──────────────────────────────────────────── */
+@media (hover: none), (pointer: coarse) {
+  /* 取消 BlueprintCursor 注入的全局 cursor:none */
+  html, html * {
+    cursor: auto !important;
+  }
+}
+
+/* ────────────────────────────────────────────
+   3. Navigation - 桌面保持不变，手机端改为汉堡菜单
+   桌面端 (≥769px): 原布局不变（不动）
+   手机端 (≤768px): 隐藏原横向标签，由组件内部切换
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* 隐藏桌面导航标签区 */
+  .bp-nav-desktop-items {
+    display: none !important;
+  }
+  /* 隐藏桌面系统状态 */
+  .bp-nav-desktop-status {
+    display: none !important;
+  }
+  /* 显示手机端汉堡按钮 */
+  .bp-nav-mobile-toggle {
+    display: flex !important;
+  }
+  /* 导航整体宽度收缩 */
+  nav[data-bp-label="NAV"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  /* Logo 文字在小屏上进一步收缩 */
+  nav[data-bp-label="NAV"] .bp-logo-text {
+    display: none !important;
+  }
+}
+
+/* 手机端抽屉菜单 */
+.bp-mobile-menu {
+  position: fixed;
+  top: 74px;
+  left: 0;
+  right: 0;
+  z-index: 49;
+  background: linear-gradient(180deg, #050f1e 0%, #030914 100%);
+  border-bottom: 2px solid rgba(58, 143, 200, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-mobile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bp-text);
+  border-left: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.bp-mobile-menu-item:hover,
+.bp-mobile-menu-item:active {
+  background: rgba(58, 143, 200, 0.08);
+  color: var(--bp-highlight);
+  border-left-color: var(--bp-accent);
+}
+
+.bp-mobile-menu-item.active {
+  color: var(--bp-highlight);
+  background: linear-gradient(90deg, rgba(58, 143, 200, 0.15), transparent);
+  border-left-color: var(--bp-accent);
+}
+
+/* ────────────────────────────────────────────
+   4. HomePage Hero
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Hero 容器水平内边距 */
+  .bp-hero-inner {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: 28px !important;
+    padding-bottom: 20px !important;
+  }
+  /* 主标题缩小 */
+  .bp-hero-title {
+    font-size: 1.6rem !important;
+    letter-spacing: 0.06em !important;
+  }
+  /* 副标题 / 英文标签 */
+  .bp-hero-sub {
+    font-size: 10px !important;
+    letter-spacing: 0.18em !important;
+  }
+  .bp-hero-tag {
+    font-size: 9px !important;
+    letter-spacing: 0.22em !important;
+  }
+  /* 隐藏顶部/底部尺子装饰（占空间太多） */
+  .bp-ruler {
+    display: none !important;
+  }
+}
+
+/* ────────────────────────────────────────────
+   5. DrawerTray - 抽屉托盘
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* 主体容器外边距 / 内边距 */
+  .bp-drawer-tray {
+    margin-bottom: 40px !important;
+  }
+  .bp-drawer-tray-body {
+    padding: 18px 14px 22px !important;
+  }
+  /* 标签区域 */
+  .bp-drawer-label-main {
+    padding: 8px 14px !important;
+    gap: 10px !important;
+  }
+  .bp-drawer-label-main .bp-drawer-title {
+    font-size: 1.05rem !important;
+  }
+  .bp-drawer-label-main .bp-drawer-subtitle {
+    font-size: 9px !important;
+    letter-spacing: 0.18em !important;
+  }
+  .bp-drawer-count-badge {
+    padding: 8px 12px !important;
+  }
+  .bp-drawer-count-badge .bp-count-number {
+    font-size: 1.3rem !important;
+  }
+  /* 隐藏尺子刻度装饰 */
+  .bp-ruler-fill {
+    display: none !important;
+  }
+}
+
+/* ────────────────────────────────────────────
+   6. 主页柜子主体
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .bp-cabinet-body {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    padding-top: 28px !important;
+    padding-bottom: 28px !important;
+  }
+  /* 国家卡片容器改单列 */
+  .bp-country-grid {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 20px !important;
+  }
+  /* 国家卡片撑满宽度 */
+  .bp-country-card {
+    width: 100% !important;
+  }
+  /* + NEW RECORD 占位卡也全宽 */
+  .bp-new-record-link {
+    width: 100% !important;
+    padding-top: 0 !important;
+  }
+  .bp-new-record-card {
+    width: 100% !important;
+    height: 80px !important;
+  }
+  /* 待收录区域 */
+  .bp-pending-grid {
+    flex-direction: column !important;
+  }
+  .bp-pending-card {
+    width: 100% !important;
+    height: 90px !important;
+  }
+  /* Footer */
+  .bp-page-footer {
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: flex-start !important;
+    margin-top: 40px !important;
+  }
+}
+
+/* ────────────────────────────────────────────
+   7. RootLayout 底部装饰文字
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* 底部左右两段文字在小屏上会重叠，改为隐藏 */
+  .bp-corner-deco {
+    display: none !important;
+  }
+}
+
+/* ────────────────────────────────────────────
+   8. 其他小屏优化
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* 防止横向溢出 */
+  html, body {
+    overflow-x: hidden;
+  }
+  /* 动画页面过渡容器 */
+  .bp-page-wrapper {
+    width: 100%;
+  }
+}
+
+/* ────────────────────────────────────────────
+   9. 中等屏幕 (769px - 1024px) - 平板
+   只做轻微调整，不破坏桌面布局
+   ──────────────────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .bp-hero-title {
+    font-size: 2.2rem !important;
+  }
+  .bp-cabinet-body {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+}

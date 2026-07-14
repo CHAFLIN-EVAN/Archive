@@ -35,7 +35,7 @@ export function RootLayout() {
 
       {/* Persistent corner decorations */}
       <div
-        className="fixed bottom-3 left-4 pointer-events-none"
+        className="bp-corner-deco fixed bottom-3 left-4 pointer-events-none"
         style={{ opacity: 0.15 }}
       >
         <div className="font-mono text-[15px] tracking-widest" style={{ color: 'var(--bp-accent)' }}>
@@ -43,7 +43,7 @@ export function RootLayout() {
         </div>
       </div>
       <div
-        className="fixed bottom-3 right-4 pointer-events-none"
+        className="bp-corner-deco fixed bottom-3 right-4 pointer-events-none"
         style={{ opacity: 0.15 }}
       >
         <div className="font-mono text-[15px] tracking-widest" style={{ color: 'var(--bp-accent)' }}>
