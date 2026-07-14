@@ -14,16 +14,14 @@ export function RootLayout() {
   }, []);
 
   return (
-    <>
-      {/* 最底层：代码雨背景装饰（独立于根 div，避免被背景色盖住） */}
+    <div
+      className="relative min-h-screen"
+      style={{ background: 'var(--bp-bg)', color: 'var(--bp-text)' }}
+    >
+      {/* 全局铺一层：代码雨背景装饰（覆盖所有内容，但透明） */}
       <CodeRain />
-
-      <div
-        className="relative min-h-screen"
-        style={{ color: 'var(--bp-text)' }}
-      >
-        <BlueprintCursor />
-        <Navigation />
+      <BlueprintCursor />
+      <Navigation />
 
         {/* Animated page transitions */}
         <AnimatePresence mode="wait">
@@ -54,8 +52,7 @@ export function RootLayout() {
           <div className="font-mono text-[15px] tracking-widest" style={{ color: 'var(--bp-accent)' }}>
             PERSONAL USE ONLY // CLASSIFIED
           </div>
-        </div>
       </div>
-    </>
+    </div>
   );
 }
