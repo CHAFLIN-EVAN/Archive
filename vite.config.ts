@@ -3,6 +3,8 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 // VITE_BASE_PATH is set by GitHub Actions to the repo name (e.g. /my-repo/).
 // Locally it defaults to '/' so the dev server works without configuration.
 const base = process.env.VITE_BASE_PATH ?? '/'
@@ -41,6 +43,7 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
+    cloudflare()
   ],
   resolve: {
     alias: {
