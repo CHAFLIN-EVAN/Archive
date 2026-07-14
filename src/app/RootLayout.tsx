@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router';
 import { useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { BlueprintCursor } from './components/BlueprintCursor';
+import { CodeRain } from './components/CodeRain';
 import { motion, AnimatePresence } from 'motion/react';
 import { initArchives } from './store/archiveStore';
 
@@ -14,9 +15,11 @@ export function RootLayout() {
 
   return (
     <div
-      className="min-h-screen"
+      className="relative z-10 min-h-screen"
       style={{ background: 'var(--bp-bg)', color: 'var(--bp-text)' }}
     >
+      {/* 最底层：代码雨背景装饰 */}
+      <CodeRain />
       <BlueprintCursor />
       <Navigation />
 
