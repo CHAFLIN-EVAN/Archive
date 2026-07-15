@@ -212,7 +212,16 @@ export function CodeRain() {
       ref={canvasRef}
       aria-hidden="true"
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 9997, background: 'rgba(255, 0, 0, 0.15)' }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 9997,
+        background: 'rgba(255, 0, 0, 0.5)',
+        pointerEvents: 'none',
+      }}
     />
   );
 }
