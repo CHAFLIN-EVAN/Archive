@@ -22,7 +22,7 @@ const HIST_CHARS = (
 /* ── 常量 ── */
 const FONT_SIZE = 16;
 const TRAIL_LENGTH = 4;           // 短拖尾：4 个字符
-const HEAD_ALPHA = 0.55;          // 中等透明度
+const HEAD_ALPHA = 0.75;          // 中等偏高透明度（页面内容有不透明背景需要穿透）
 const MOUSE_RADIUS = 100;         // 鼠标影响半径
 const MOUSE_FORCE = 3;            // 鼠标推力系数
 const COLOR = { r: 96, g: 180, b: 255 }; // --bp-highlight 的 RGB
@@ -212,7 +212,7 @@ export function CodeRain() {
       ref={canvasRef}
       aria-hidden="true"
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 1 }}
+      style={{ zIndex: 40 }}
     />
   );
 }
