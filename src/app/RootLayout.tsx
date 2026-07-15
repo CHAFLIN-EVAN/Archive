@@ -18,8 +18,19 @@ export function RootLayout() {
       className="relative min-h-screen"
       style={{ background: 'var(--bp-bg)', color: 'var(--bp-text)' }}
     >
-      {/* 全局铺一层：代码雨背景装饰（覆盖所有内容，但透明） */}
-      <CodeRain />
+      {/* 测试用红色覆盖层 */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(255, 0, 0, 0.5)',
+          zIndex: 9997,
+          pointerEvents: 'none',
+        }}
+      />
       <BlueprintCursor />
       <Navigation />
 
