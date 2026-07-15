@@ -1,158 +1,209 @@
 import { useEffect, useRef } from 'react';
 
-// 字符集：英数字符号 + 少量汉字（营造"档案 / 机密"氛围）
-const CHARS_EN = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@$%&*+=<>?/\\|[]{}';
-const CHARS_ZH = '历史档案机密系统数据文献记录索引蓝图分类研究编号卷宗绝密classified';
-const FONT_SIZE = 15;
-const COLOR_RGB = '96, 180, 255'; // var(--bp-highlight) 的 RGB
-const BG_RGB = '0, 20, 40';       // 接近 var(--bp-bg) #001428
-const FADE_ALPHA = 0.08;          // 每帧淡出速度（越小拖尾越长）
-const HEAD_ALPHA = 0.18;          // 头部字符透明度（轻微点缀）
+/* ── 历史字符集 ── */
+const HIST_CHARS = (
+  // 朝代
+  '夏商周秦汉晋隋唐宋元明清' +
+  // 天干地支
+  '甲乙丙丁戊己庚辛壬癸' +
+  '子丑寅卯辰巳午未申酉戌亥' +
+  // 历史关键词
+  '帝王将相诸侯争霸春秋战国' +
+  '焚书坑儒丝路赤壁贞观' +
+  '安史靖康崖山郑和土木' +
+  '甲午辛亥革命维新变法' +
+  // 档案氛围
+  '机密绝密档案文献卷宗' +
+  '编号分类索引记录密令' +
+  // 数字
+  '一二三四五六七八九十百千万'
+).split('');
 
-interface Column {
+/* ── 常量 ── */
+const FONT_SIZE = 16;
+const TRAIL_LENGTH = 4;           // 短拖尾：4 个字符
+const HEAD_ALPHA = 0.55;          // 中等透明度
+const MOUSE_RADIUS = 100;         // 鼠标影响半径
+const MOUSE_FORCE = 3;            // 鼠标推力系数
+const COLOR = { r: 96, g: 180, b: 255 }; // --bp-highlight 的 RGB
+
+/* ── 数据结构 ── */
+interface Drop {
+  chars: string[];    // 拖尾字符队列
+  y: number;          // 头部 y 坐标
+  speed: number;      // 基础速度
   active: boolean;
-  y: number;
-  speed: number;
-  char: string;
-  delay: number; // 剩余延迟帧数
+  delay: number;      // 未激活时的剩余等待帧
 }
 
-function randomChar(): string {
-  const useZh = Math.random() < 0.15;
-  const chars = useZh ? CHARS_ZH : CHARS_EN;
-  return chars[Math.floor(Math.random() * chars.length)];
+function randChar(): string {
+  return HIST_CHARS[Math.floor(Math.random() * HIST_CHARS.length)];
+}
+
+function makeDrop(x: number, canvasH: number, initial: boolean): Drop {
+  return {
+    chars: Array.from({ length: TRAIL_LENGTH }, () => randChar()),
+    y: initial ? Math.random() * canvasH : canvasH + FONT_SIZE * TRAIL_LENGTH + Math.random() * 120,
+    speed: 0.6 + Math.random() * 1.4,
+    active: true,
+    delay: 0,
+  };
 }
 
 export function CodeRain() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const prefersReducedMotion = useRef(false);
+  const mouseRef = useRef({ x: -9999, y: -9999 });
+  const reducedMotion = useRef(false);
 
   useEffect(() => {
-    // 无障碍：用户若要求减少动画，则完全禁用
+    /* ── 无障碍：减少动画偏好 ── */
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    prefersReducedMotion.current = mq.matches;
-    const onMotionChange = (e: MediaQueryListEvent) => {
-      prefersReducedMotion.current = e.matches;
-    };
-    mq.addEventListener('change', onMotionChange);
+    reducedMotion.current = mq.matches;
+    const onMotion = (e: MediaQueryListEvent) => { reducedMotion.current = e.matches; };
+    mq.addEventListener('change', onMotion);
 
     const canvas = canvasRef.current;
-    if (!canvas || prefersReducedMotion.current) {
-      return () => mq.removeEventListener('change', onMotionChange);
-    }
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationId = 0;
-    let columns: Column[] = [];
-    let width = 0;
-    let height = 0;
-    let colWidth = 20;
-    let activationChance = 0.02; // 每帧每非活跃列重新激活的概率
+    let raf = 0;
+    let drops: Drop[] = [];
+    let colW = 24;
+    let W = 0, H = 0;
 
-    const getConfig = () => {
-      const isMobile = window.innerWidth < 768;
-      return {
-        colWidth: isMobile ? 32 : 20,
-        activationChance: isMobile ? 0.008 : 0.02,
-      };
-    };
-
-    const initColumns = (colCount: number) => {
-      columns = Array.from({ length: colCount }, () => ({
-        active: false,
-        y: 0,
-        speed: 0.4 + Math.random() * 1.2,
-        char: randomChar(),
-        delay: Math.floor(Math.random() * 240), // 初始随机错开
-      }));
-    };
-
-    const resize = () => {
+    /* ── 初始化 / 重置列 ── */
+    const init = () => {
       const dpr = window.devicePixelRatio || 1;
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = `${W}px`;
+      canvas.style.height = `${H}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const cfg = getConfig();
-      colWidth = cfg.colWidth;
-      activationChance = cfg.activationChance;
+      const isMobile = W < 768;
+      colW = isMobile ? 36 : 24;
 
-      // 背景填充，避免首帧透明
-      ctx.fillStyle = '#001428';
-      ctx.fillRect(0, 0, width, height);
-
-      const colCount = Math.floor(width / colWidth);
-      initColumns(colCount);
+      const count = Math.floor(W / colW);
+      drops = Array.from({ length: count }, (_, i) => {
+        const d = makeDrop(i * colW, H, true);
+        // 首帧就激活，均匀分布
+        d.y = Math.random() * (H + 200) - 100;
+        return d;
+      });
     };
 
+    /* ── 鼠标追踪 ── */
+    const onMouse = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+    };
+    const onTouch = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    };
+    const onMouseLeave = () => {
+      mouseRef.current = { x: -9999, y: -9999 };
+    };
+
+    window.addEventListener('mousemove', onMouse);
+    window.addEventListener('touchmove', onTouch, { passive: true });
+    window.addEventListener('mouseleave', onMouseLeave);
+
+    /* ── 绘制循环 ── */
     const draw = () => {
-      if (prefersReducedMotion.current) {
-        // 清屏并停止
-        ctx.fillStyle = '#001428';
-        ctx.fillRect(0, 0, width, height);
+      if (reducedMotion.current) {
+        ctx.clearRect(0, 0, W, H);
         return;
       }
 
-      // 半透明背景覆盖 —— 让老字符逐渐淡出
-      ctx.fillStyle = `rgba(${BG_RGB}, ${FADE_ALPHA})`;
-      ctx.fillRect(0, 0, width, height);
-
+      // 清屏（不拖影，由字符队列自身形成拖尾）
+      ctx.clearRect(0, 0, W, H);
       ctx.font = `${FONT_SIZE}px "Space Mono", ui-monospace, monospace`;
       ctx.textBaseline = 'top';
 
-      for (let i = 0; i < columns.length; i++) {
-        const col = columns[i];
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
 
-        if (!col.active) {
-          // 随机激活
-          if (col.delay > 0) {
-            col.delay--;
-          } else if (Math.random() < activationChance) {
-            col.active = true;
-            col.y = height + 10; // 从底部开始
-            col.speed = 0.4 + Math.random() * 1.2;
-            col.char = randomChar();
+      for (let i = 0; i < drops.length; i++) {
+        const drop = drops[i];
+        const baseX = i * colW + 4;
+
+        /* ── 非活跃列：倒计时后重新激活 ── */
+        if (!drop.active) {
+          drop.delay--;
+          if (drop.delay <= 0) {
+            drops[i] = makeDrop(baseX, H, false);
           }
           continue;
         }
 
-        col.y -= col.speed;
-        // 每帧刷新字符（形成"代码流动"感）
-        if (Math.random() < 0.4) {
-          col.char = randomChar();
+        /* ── 移动（从下往上） ── */
+        let dy = drop.speed;
+
+        // 鼠标交互：附近的字符被推开 / 加速
+        const headScreenY = drop.y;
+        const dxm = baseX - mx;
+        const dym = headScreenY - my;
+        const dist = Math.sqrt(dxm * dxm + dym * dym);
+        if (dist < MOUSE_RADIUS && dist > 0) {
+          const factor = (1 - dist / MOUSE_RADIUS) * MOUSE_FORCE;
+          dy += factor * 2; // 加速远离
         }
 
-        // 头部字符（最亮）
-        ctx.fillStyle = `rgba(${COLOR_RGB}, ${HEAD_ALPHA})`;
-        ctx.fillText(col.char, i * colWidth + 3, col.y);
+        drop.y -= dy;
 
-        // 稍微拖尾：在头部下方 1 个字符位置画一个较亮的"高光"字符
-        ctx.fillStyle = `rgba(${COLOR_RGB}, ${HEAD_ALPHA * 0.5})`;
-        ctx.fillText(col.char, i * colWidth + 3, col.y + FONT_SIZE);
+        /* ── 刷新字符（流动感） ── */
+        if (Math.random() < 0.3) {
+          drop.chars[Math.floor(Math.random() * drop.chars.length)] = randChar();
+        }
 
-        // 超出顶部：去激活，随机延迟后从底部重新出现
-        if (col.y < -FONT_SIZE * 2) {
-          col.active = false;
-          col.delay = Math.floor(60 + Math.random() * 300); // 1-6 秒 @60fps
+        /* ── 绘制拖尾字符 ── */
+        for (let t = 0; t < drop.chars.length; t++) {
+          const charY = drop.y + t * FONT_SIZE;
+
+          // 超出屏幕顶部则跳过
+          if (charY < -FONT_SIZE || charY > H + FONT_SIZE) continue;
+
+          // 透明度渐变：头部最亮，尾部渐隐
+          const fadeRatio = 1 - t / drop.chars.length;
+          const alpha = HEAD_ALPHA * fadeRatio * fadeRatio; // 二次衰减更自然
+
+          if (alpha < 0.01) continue;
+
+          // 头部字符额外加亮
+          if (t === 0) {
+            ctx.fillStyle = `rgba(168, 216, 240, ${HEAD_ALPHA})`; // --bp-text-bright
+          } else {
+            ctx.fillStyle = `rgba(${COLOR.r}, ${COLOR.g}, ${COLOR.b}, ${alpha})`;
+          }
+
+          ctx.fillText(drop.chars[t], baseX, charY);
+        }
+
+        /* ── 超出屏幕顶部 → 去激活 ── */
+        if (drop.y < -FONT_SIZE * (TRAIL_LENGTH + 1)) {
+          drop.active = false;
+          drop.delay = Math.floor(30 + Math.random() * 180); // 0.5~3.5 秒后重生
         }
       }
 
-      animationId = requestAnimationFrame(draw);
+      raf = requestAnimationFrame(draw);
     };
 
-    resize();
-    window.addEventListener('resize', resize);
+    init();
+    window.addEventListener('resize', init);
     draw();
 
     return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resize);
-      mq.removeEventListener('change', onMotionChange);
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', init);
+      window.removeEventListener('mousemove', onMouse);
+      window.removeEventListener('touchmove', onTouch);
+      window.removeEventListener('mouseleave', onMouseLeave);
+      mq.removeEventListener('change', onMotion);
     };
   }, []);
 
@@ -161,7 +212,7 @@ export function CodeRain() {
       ref={canvasRef}
       aria-hidden="true"
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 100 }}
+      style={{ zIndex: 1 }}
     />
   );
 }
